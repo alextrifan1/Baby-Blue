@@ -1,0 +1,84 @@
+//
+// Created by alex on 8/2/24.
+//
+
+#ifndef DEFS_H
+#define DEFS_H
+
+typedef unsigned long long U64;
+
+#define NAME "BABY-BLUE 1.0"
+#define BOARD_SQ_NUMBER 120
+
+#define MAX_GAME_MOVES 2048 //half moves
+
+enum { EMPTY, wP, wN, wB, wR, wQ, bP, bN, bB, bR, bQ}; //w-white b-black, P-pawn...
+enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE}; //board horizontal
+enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE}; //board vertical
+enum { WHITE, BLACK, BOTH }; //colors we use
+
+/* see board representation */
+enum {
+    A1 = 21, B1, C1, D1, E1, F1, G1, H1,
+    A2 = 31, B2, C2, D2, E2, F2, G2, H2,
+    A3 = 41, B3, C3, D3, E3, F3, G3, H3,
+    A4 = 51, B4, C4, D4, E4, F4, G4, H4,
+    A5 = 61, B5, C5, D5, E5, F5, G5, H5,
+    A6 = 71, B6, C6, D6, E6, F6, G6, H6,
+    A7 = 81, B7, C7, D7, E7, F7, G7, H7,
+    A8 = 91, B8, C8, D8, E8, F8, G8, H8, NO_SQ
+};
+
+enum { FALSE, TRUE};
+
+/*  WKCA: white king king side casteling
+    think of them as bits
+    1 0 0 1 - white king can castle on king side, black king can castle on queen side
+*/
+enum { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8};
+
+typedef struct {
+    int move;
+    int castle_permission;
+    int en_passant; //the en passant square if there is one
+    int fifty_move; //counter for making a forced draw
+    U64 positon_key;
+} S_UNDO;
+
+typedef struct {
+    int pieces[BOARD_SQ_NUMBER];
+    U64 pawns[3]; // [0,1,2] 0-if there is no pawn with the same color, 1 if there is
+
+    int king_square[2];
+
+    int side; //current side to move
+    int en_passant; //the en passant square if there is one
+    int fifty_moves; //counter for making a forced draw
+
+    int ply; //half move
+    int history_ply; // index: how many half moves were made
+    U64 positon_key;
+
+    int pieces_number[13];
+    int big_pieces[3]; //anything but pawns
+    int major_pieces[3]; //rooks, queens
+    int minor_pieces[3]; //bishops, knights
+
+    S_UNDO history[MAX_GAME_MOVES];
+} S_BOARD;
+
+/* MACROS */
+
+//given a file(f) and rank(r) return the equivalent square in the array
+#define FR2SQ(f,r) ( (21 + (f) ) + ( (r) * 10) )
+
+/* GLOBALS */
+
+extern int square120_to_square64[BOARD_SQ_NUMBER];
+extern int square64_to_square120[64];
+
+/* FUNCTIONS */
+extern void AllInit();
+// init.c
+
+#endif //DEFS_H
