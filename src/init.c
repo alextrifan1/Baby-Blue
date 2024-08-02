@@ -7,6 +7,20 @@
 int square120_to_square64[BOARD_SQ_NUMBER];
 int square64_to_square120[64];
 
+U64 set_mask[64];
+U64 clear_mask[64];
+
+void init_bitmasks() {
+    for (int index = 0; index < 64; index++) {
+        set_mask[index] = 0ULL;
+        clear_mask[index] = 0ULL;
+    }
+    for (int index = 0; index < 64; index++) {
+        set_mask[index] |= (1ULL << index);
+        clear_mask[index] = ~set_mask[index];
+    }
+}
+
 void init_sq120_to_sq64() {
     int index = 0;
     int sq = A1;
@@ -34,6 +48,7 @@ void init_sq120_to_sq64() {
 
 }
 
-void AllInit() {
+void all_init() {
     init_sq120_to_sq64();
+    init_bitmasks();
 }

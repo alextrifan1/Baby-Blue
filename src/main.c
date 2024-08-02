@@ -6,21 +6,15 @@
 #include "../include/defs.h"
 
 int main() {
-     AllInit();
+     all_init();
 
-     int index;
-     for (index = 0; index < BOARD_SQ_NUMBER; index++) {
-         if (index % 10 == 0)
-             printf("\n");
-         printf("%5d", square120_to_square64[index]);
-     }
+     U64 playBitBoard = 0ULL;
 
-     printf("\n");
-     printf("\n");
-     for (index = 0; index < 64; index++) {
-         if (index % 8 == 0)
-             printf("\n");
-         printf("%5d", square64_to_square120[index]);
-     }
+     SETBIT(playBitBoard, 17);
+     print_bitboard(playBitBoard);
+
+     CLEARBIT(playBitBoard, 17);
+     print_bitboard(playBitBoard);
+
      return 0;
 }

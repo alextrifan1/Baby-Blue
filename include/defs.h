@@ -5,6 +5,24 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+#include <stdlib.h>
+
+#define DEBUG
+
+#ifndef DEBUG
+#define ASSERT(n)
+#else
+#define ASSERT(n) \
+if (!(n)) { \
+printf("%s - Failed ", #n); \
+printf("On %s ", __DATE__); \
+printf("At %s ", __TIME__); \
+printf("In File %s ", __FILE__); \
+printf("At Line %d\n", __LINE__); \
+exit(1); }
+#endif
+
+
 typedef unsigned long long U64;
 
 #define NAME "BABY-BLUE 1.0"
@@ -65,20 +83,34 @@ typedef struct {
     int minor_pieces[3]; //bishops, knights
 
     S_UNDO history[MAX_GAME_MOVES];
+
+    // piece list -- for time savings
+    int p_list[13][10];
 } S_BOARD;
 
 /* MACROS */
 
 //given a file(f) and rank(r) return the equivalent square in the array
 #define FR2SQ(f,r) ( (21 + (f) ) + ( (r) * 10) )
+#define SQ64(sq120) square120_to_square64[sq120]
+#define POP(b) pop_bit(b)
+#define COUNT(b) count_bits(b)
+#define CLEARBIT(bb, sq) ((bb) &= clear_mask[(sq)])
+#define SETBIT(bb,sq) ((bb) |= set_mask[(sq)])
 
 /* GLOBALS */
 
 extern int square120_to_square64[BOARD_SQ_NUMBER];
 extern int square64_to_square120[64];
+extern U64 set_mask[64];
+extern U64 clear_mask[64];
 
 /* FUNCTIONS */
-extern void AllInit();
-// init.c
+//init.c
+extern void all_init();
+//bitboard.c
+extern void print_bitboard(U64 bb);
+extern int pop_bit(U64 *bb);
+extern int count_bits(U64 b);
 
 #endif //DEFS_H
