@@ -30,7 +30,7 @@ typedef unsigned long long U64;
 
 #define MAX_GAME_MOVES 2048 //half moves
 
-enum { EMPTY, wP, wN, wB, wR, wQ, bP, bN, bB, bR, bQ}; //w-white b-black, P-pawn...
+enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK}; //w-white b-black, P-pawn...
 enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE}; //board horizontal
 enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE}; //board vertical
 enum { WHITE, BLACK, BOTH }; //colors we use
@@ -44,7 +44,7 @@ enum {
     A5 = 61, B5, C5, D5, E5, F5, G5, H5,
     A6 = 71, B6, C6, D6, E6, F6, G6, H6,
     A7 = 81, B7, C7, D7, E7, F7, G7, H7,
-    A8 = 91, B8, C8, D8, E8, F8, G8, H8, NO_SQ
+    A8 = 91, B8, C8, D8, E8, F8, G8, H8, NO_SQ, OFFBOARD
 };
 
 enum { FALSE, TRUE};
@@ -70,6 +70,7 @@ typedef struct {
     int king_square[2];
 
     int side; //current side to move
+    int castle_permission;
     int en_passant; //the en passant square if there is one
     int fifty_moves; //counter for making a forced draw
 
@@ -92,7 +93,8 @@ typedef struct {
 
 //given a file(f) and rank(r) return the equivalent square in the array
 #define FR2SQ(f,r) ( (21 + (f) ) + ( (r) * 10) )
-#define SQ64(sq120) square120_to_square64[sq120]
+#define SQ64(sq120) (square120_to_square64[(sq120)])
+#define SQ120(sq64) (square64_to_square120[(sq64)])
 #define POP(b) pop_bit(b)
 #define COUNT(b) count_bits(b)
 #define CLEARBIT(bb, sq) ((bb) &= clear_mask[(sq)])
@@ -104,6 +106,9 @@ extern int square120_to_square64[BOARD_SQ_NUMBER];
 extern int square64_to_square120[64];
 extern U64 set_mask[64];
 extern U64 clear_mask[64];
+extern U64 piece_keys[13][120];
+extern U64 side_key;
+extern U64 castle_key[16];
 
 /* FUNCTIONS */
 //init.c
@@ -112,5 +117,9 @@ extern void all_init();
 extern void print_bitboard(U64 bb);
 extern int pop_bit(U64 *bb);
 extern int count_bits(U64 b);
+//hashkeys.c
+extern U64 generate_position_key(const S_BOARD *pos);
+//board.c
+extern void reset_board(S_BOARD *pos);
 
 #endif //DEFS_H
