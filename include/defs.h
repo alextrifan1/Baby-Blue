@@ -30,6 +30,8 @@ typedef unsigned long long U64;
 
 #define MAX_GAME_MOVES 2048 //half moves
 
+#define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
 enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK}; //w-white b-black, P-pawn...
 enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE}; //board horizontal
 enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE}; //board vertical
@@ -109,6 +111,10 @@ extern U64 clear_mask[64];
 extern U64 piece_keys[13][120];
 extern U64 side_key;
 extern U64 castle_key[16];
+extern char piece_char[];
+extern char side_char[];
+extern char rank_char[];
+extern char file_char[];
 
 /* FUNCTIONS */
 //init.c
@@ -121,5 +127,7 @@ extern int count_bits(U64 b);
 extern U64 generate_position_key(const S_BOARD *pos);
 //board.c
 extern void reset_board(S_BOARD *pos);
+extern int parse_fen(char *fen, S_BOARD *pos);
+extern void print_board(const S_BOARD *pos);
 
 #endif //DEFS_H

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 //this macro helps us generate a random 64bit number that uses all the 64 bits
-#define RAND_64 ( (U64)rand() + ((U64)rand() << 15) + ((U64)rand() << 30) + ((U64)rand() << 45) + (((U64)rand() & 0xf) << 60) )
+#define RAND_64 ( (U64)rand() | ((U64)rand() << 15) | ((U64)rand() << 30) | ((U64)rand() << 45) | (((U64)rand() & 0xf) << 60) )
 
 int square120_to_square64[BOARD_SQ_NUMBER];
 int square64_to_square120[64];

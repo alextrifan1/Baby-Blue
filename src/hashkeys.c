@@ -14,7 +14,7 @@ U64 generate_position_key(const S_BOARD *pos) {
     //loop through the board
     for (sq = 0; sq < BOARD_SQ_NUMBER; sq++) {
         piece = pos->pieces[sq]; //set piece to the value of the square
-        if (piece != NO_SQ && piece != EMPTY) { //if valid position and not empty square
+        if (piece != NO_SQ && piece != EMPTY && piece != OFFBOARD) { //if valid position and not empty square
             ASSERT(piece >= wP && piece <= bK);
             final_key ^= piece_keys[piece][sq];
         }
