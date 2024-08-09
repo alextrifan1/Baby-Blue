@@ -81,9 +81,10 @@ typedef struct {
     U64 positon_key;
 
     int pieces_number[13];
-    int big_pieces[3]; //anything but pawns
-    int major_pieces[3]; //rooks, queens
-    int minor_pieces[3]; //bishops, knights
+    int big_pieces[2]; //anything but pawns
+    int major_pieces[2]; //rooks, queens
+    int minor_pieces[2]; //bishops, knights
+    int material[2]; //for calculating the value of the pieces gained
 
     S_UNDO history[MAX_GAME_MOVES];
 
@@ -116,6 +117,15 @@ extern char side_char[];
 extern char rank_char[];
 extern char file_char[];
 
+extern int piece_big[13];
+extern int piece_major[13];
+extern int piece_minor[13];
+extern int piece_value[13];
+extern int piece_color[13];
+
+extern int files_board[BOARD_SQ_NUMBER];
+extern int ranks_board[BOARD_SQ_NUMBER];
+
 /* FUNCTIONS */
 //init.c
 extern void all_init();
@@ -129,5 +139,6 @@ extern U64 generate_position_key(const S_BOARD *pos);
 extern void reset_board(S_BOARD *pos);
 extern int parse_fen(char *fen, S_BOARD *pos);
 extern void print_board(const S_BOARD *pos);
+extern void update_list_material(S_BOARD *pos);
 
 #endif //DEFS_H

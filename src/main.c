@@ -14,6 +14,7 @@
 int main() {
      all_init();
 
+     /*
      S_BOARD board[1];
 
      parse_fen(START_FEN, board);
@@ -27,6 +28,8 @@ int main() {
 
      parse_fen(FEN3, board);
      print_board(board);
+     */
+
 
 
      return 0;

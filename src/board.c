@@ -5,17 +5,41 @@
 #include <stdio.h>
 #include "defs.h"
 
+/// updates nr of pieces, material and sets p_list
+/// @param pos takes a position as the argument(our board structure)
+void update_list_material(S_BOARD *pos) {
+    int piece, sq, index, color;
+
+    for (index = 0; index < BOARD_SQ_NUMBER; index++) {
+        sq = index;
+        piece = pos->pieces[index];
+        if (piece != OFFBOARD && piece != EMPTY) {
+            color = piece_color[piece];
+
+            if (piece_big[piece] == TRUE) pos->big_pieces[color]++;
+            if (piece_minor[piece] == TRUE) pos->minor_pieces[color]++;
+            if (piece_major[piece] == TRUE) pos->major_pieces[color]++;
+
+            pos->material[color] += piece_value[piece];
+
+            //piece list ex: p_list[wP][pieces_number:0] = sq:a1
+            pos->p_list[piece][pos->pieces_number[piece]] = sq;
+            pos->pieces_number[piece]++;
+
+            if (piece == wK) pos->king_square[WHITE] = sq;
+            if (piece == bK) pos->king_square[BLACK] = sq;
+        }
+    }
+}
+
+
 int parse_fen(char *fen, S_BOARD *pos) {
     ASSERT(fen != NULL);
     ASSERT(pos != NULL);
 
     int rank = RANK_8; //in fen notation we start at rank 8(top of the borard)
     int file = FILE_A; // -||-           we start on file A
-    int piece = 0;
-    int count = 0; //for empty squares
-    int i = 0;
-    int sq64 = 0;
-    int sq120 = 0;
+    int piece, count, i, sq64,sq120; //count is for empty squares
 
     reset_board(pos);
 
@@ -102,7 +126,7 @@ int parse_fen(char *fen, S_BOARD *pos) {
     }
 
     pos->positon_key = generate_position_key(pos);
-
+    update_list_material(pos);
     return 0;
 }
 
@@ -118,9 +142,11 @@ void reset_board(S_BOARD *pos) {
         pos->pieces[SQ120(index)] = EMPTY;
     }
     for (index = 0; index < 3; index++) {
-        pos->big_pieces[index] = 0;
-        pos->major_pieces[index] = 0;
-        pos->minor_pieces[index] = 0;
+        if (index < 2) {
+            pos->big_pieces[index] = 0;
+            pos->major_pieces[index] = 0;
+            pos->minor_pieces[index] = 0;
+        }
         pos->pawns[index] = 0ULL;
     }
 

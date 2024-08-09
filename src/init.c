@@ -2,8 +2,11 @@
 // Created by alex on 8/2/24.
 //
 
+#include <stdio.h>
+
 #include "../include/defs.h"
 #include <stdlib.h>
+#include <strings.h>
 
 //this macro helps us generate a random 64bit number that uses all the 64 bits
 #define RAND_64 ( (U64)rand() | ((U64)rand() << 15) | ((U64)rand() << 30) | ((U64)rand() << 45) | (((U64)rand() & 0xf) << 60) )
@@ -17,6 +20,24 @@ U64 clear_mask[64];
 U64 piece_keys[13][120];
 U64 side_key;
 U64 castle_key[16];
+
+int files_board[BOARD_SQ_NUMBER];
+int ranks_board[BOARD_SQ_NUMBER];
+
+/// initializes the files/ranks_board vectors
+void init_files_ranks_board() {
+    for (int index = 0; index < BOARD_SQ_NUMBER; index++) {
+        files_board[index] = OFFBOARD;
+        ranks_board[index] = OFFBOARD;
+    }
+    for (int rank = RANK_1; rank <= RANK_8; rank++) {
+        for (int file = FILE_A; file <= FILE_H; file++) {
+            int sq = FR2SQ(file, rank);
+            files_board[sq] = file;
+            ranks_board[sq] = rank;
+        }
+    }
+}
 
 void init_hashkeys() {
     for (int index = 0; index < 13; index++) {
@@ -70,4 +91,5 @@ void all_init() {
     init_sq120_to_sq64();
     init_bitmasks();
     init_hashkeys();
+    init_files_ranks_board();
 }
