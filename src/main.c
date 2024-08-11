@@ -14,23 +14,14 @@
 int main() {
      all_init();
 
-     /*
+
      S_BOARD board[1];
 
-     parse_fen(START_FEN, board);
-     print_board(board);
-
-     parse_fen(FEN1, board);
-     print_board(board);
-
      parse_fen(FEN2, board);
-     print_board(board);
-
      parse_fen(FEN3, board);
      print_board(board);
-     */
 
-
+     ASSERT(check_board(board));
 
      return 0;
 }

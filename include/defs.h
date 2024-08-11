@@ -95,7 +95,7 @@ typedef struct {
 /* MACROS */
 
 //given a file(f) and rank(r) return the equivalent square in the array
-#define FR2SQ(f,r) ( (21 + (f) ) + ( (r) * 10) )
+#define FR2SQ(f,r) ( (21 + (f) ) + ( (r) * 10 ) )
 #define SQ64(sq120) (square120_to_square64[(sq120)])
 #define SQ120(sq64) (square64_to_square120[(sq64)])
 #define POP(b) pop_bit(b)
@@ -140,5 +140,6 @@ extern void reset_board(S_BOARD *pos);
 extern int parse_fen(char *fen, S_BOARD *pos);
 extern void print_board(const S_BOARD *pos);
 extern void update_list_material(S_BOARD *pos);
+extern int check_board(const S_BOARD *pos);
 
 #endif //DEFS_H

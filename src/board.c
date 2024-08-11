@@ -5,6 +5,88 @@
 #include <stdio.h>
 #include "defs.h"
 
+
+int check_board(const S_BOARD *pos) {
+    int temp_piece_number[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int temp_big_piece[2] = {0, 0};
+    int temp_major_piece[2] = {0, 0};
+    int temp_minor_piece[2] = {0, 0};
+    int temp_material[2] = {0, 0};
+
+    int sq64, sq120, temp_piece, temp_piecenr, color, p_count;
+
+    U64 temp_pawns[3] = {0ULL, 0ULL, 0ULL};
+
+    temp_pawns[WHITE] = pos->pawns[WHITE];
+    temp_pawns[BLACK] = pos->pawns[BLACK];
+    temp_pawns[BOTH] = pos->pawns[BOTH];
+
+    // check piece list
+    for (temp_piece = wP; temp_piece <= bK; temp_piece++) {
+        for (temp_piecenr = 0; temp_piecenr < pos->pieces_number[temp_piece]; temp_piecenr++) { //ex: we go through 8 wp
+            sq120 = pos->p_list[temp_piece][temp_piecenr]; // we get the square for that piece
+            ASSERT(pos->pieces[sq120] == temp_piece); //check if the piece on the array is the same as the temp_piece
+        }
+    }
+
+    // check piece count and other counters
+    for (sq64 = 0; sq64 < 64; ++sq64) {
+        sq120 = SQ120(sq64);
+        temp_piece = pos->pieces[sq120];
+        temp_piece_number[temp_piece]++;
+        color = piece_color[temp_piece];
+        if (piece_big[temp_piece] == TRUE) temp_big_piece[color]++;
+        if (piece_major[temp_piece] == TRUE) temp_major_piece[color]++;
+        if (piece_minor[temp_piece] == TRUE) temp_minor_piece[color]++;
+
+        temp_material[color] += piece_value[temp_piece];
+    }
+
+    for (temp_piece = wP; temp_piece <= bK; temp_piece++) {
+        ASSERT(temp_piece_number[temp_piece] == pos->pieces_number[temp_piece]);
+    }
+
+    // check bitboard count
+    p_count = COUNT(temp_pawns[WHITE]);
+    ASSERT(p_count == pos->pieces_number[wP]);
+    p_count = COUNT(temp_pawns[BLACK]);
+    ASSERT(p_count == pos->pieces_number[bP]);
+    p_count = COUNT(temp_pawns[BOTH]);
+    ASSERT(p_count == (pos->pieces_number[wP] + pos->pieces_number[bP]));
+
+    // check bitboard squares
+    while (temp_pawns[WHITE]) {
+        sq64 = POP(&temp_pawns[WHITE]);
+        ASSERT(pos->pieces[SQ120(sq64)] == wP);
+    }
+
+    while (temp_pawns[BLACK]) {
+        sq64 = POP(&temp_pawns[BLACK]);
+        ASSERT(pos->pieces[SQ120(sq64)] == bP);
+    }
+
+    while (temp_pawns[BOTH]) {
+        sq64 = POP(&temp_pawns[BOTH]);
+        ASSERT((pos->pieces[SQ120(sq64)] == wP) || (pos->pieces[SQ120(sq64)] == bP));
+    }
+
+    ASSERT(temp_material[WHITE] == pos->material[WHITE] && temp_material[BLACK] == pos->material[BLACK]);
+    ASSERT(temp_minor_piece[WHITE] == pos->minor_pieces[WHITE] && temp_minor_piece[BLACK] == pos->minor_pieces[BLACK]);
+    ASSERT(temp_major_piece[WHITE] == pos->major_pieces[WHITE] && temp_major_piece[BLACK] == pos->major_pieces[BLACK]);
+    ASSERT(temp_big_piece[WHITE] == pos->big_pieces[WHITE] && temp_big_piece[BLACK] == pos->big_pieces[BLACK])
+
+    ASSERT(pos->side == WHITE || pos->side == BLACK);
+    ASSERT(generate_position_key(pos) == pos->positon_key);
+
+    ASSERT(pos->en_passant == NO_SQ || (ranks_board[pos->en_passant] == RANK_6 && pos->side == WHITE)
+           || (ranks_board[pos->en_passant] == RANK_3 && pos->side == BLACK));
+
+    ASSERT(pos->pieces[pos->king_square[WHITE]] == wK);
+    ASSERT(pos->pieces[pos->king_square[BLACK]] == bK);
+
+    return TRUE;
+}
+
 /// updates nr of pieces, material and sets p_list
 /// @param pos takes a position as the argument(our board structure)
 void update_list_material(S_BOARD *pos) {
@@ -28,6 +110,15 @@ void update_list_material(S_BOARD *pos) {
 
             if (piece == wK) pos->king_square[WHITE] = sq;
             if (piece == bK) pos->king_square[BLACK] = sq;
+
+            //TODO: check if the board setup is good
+            if (piece == wP) {
+                SETBIT(pos->pawns[WHITE], SQ64(sq)); // because sq is in the 124 bit format
+                SETBIT(pos->pawns[BOTH], SQ64(sq));
+            } else if (piece == bP) {
+                SETBIT(pos->pawns[BLACK], SQ64(sq));
+                SETBIT(pos->pawns[BOTH], SQ64(sq));
+            }
         }
     }
 }
@@ -141,18 +232,22 @@ void reset_board(S_BOARD *pos) {
     for (index = 0; index < 64; index++) {
         pos->pieces[SQ120(index)] = EMPTY;
     }
-    for (index = 0; index < 3; index++) {
-        if (index < 2) {
-            pos->big_pieces[index] = 0;
-            pos->major_pieces[index] = 0;
-            pos->minor_pieces[index] = 0;
-        }
+    for(index = 0; index < 2; ++index) {
+        pos->big_pieces[index] = 0;
+        pos->major_pieces[index] = 0;
+        pos->minor_pieces[index] = 0;
+        pos->material[index] = 0;
+    }
+
+    for(index = 0; index < 3; ++index) {
         pos->pawns[index] = 0ULL;
     }
 
     for (index = 0; index < 13; index++) {
         pos->pieces_number[index] = 0;
     }
+
+    pos->material[BLACK] = pos->material[WHITE] = 0; // this could have been a pain
 
     pos->king_square[WHITE] = pos->king_square[BLACK] = NO_SQ;
 
