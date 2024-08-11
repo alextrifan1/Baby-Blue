@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include "defs.h"
 
-
+/// check the integrity of our board structure
+/// @param pos
+/// @return always true if there is no problem
 int check_board(const S_BOARD *pos) {
     int temp_piece_number[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int temp_big_piece[2] = {0, 0};

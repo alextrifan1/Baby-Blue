@@ -103,6 +103,11 @@ typedef struct {
 #define CLEARBIT(bb, sq) ((bb) &= clear_mask[(sq)])
 #define SETBIT(bb,sq) ((bb) |= set_mask[(sq)])
 
+#define IsBQ(p) (piece_bishop_queen[(p)])
+#define IsRQ(p) (piece_rook_queen[(p)])
+#define IsKn(p) (piece_knight[(p)])
+#define IsKi(p) (piece_king[(p)])
+
 /* GLOBALS */
 
 extern int square120_to_square64[BOARD_SQ_NUMBER];
@@ -126,20 +131,33 @@ extern int piece_color[13];
 extern int files_board[BOARD_SQ_NUMBER];
 extern int ranks_board[BOARD_SQ_NUMBER];
 
+//we'll use this to see if a piece is a % as we iterate through the board
+extern int piece_knight[13];
+extern int piece_king[13];
+extern int piece_rook_queen[13];
+extern int piece_bishop_queen[13];
+
 /* FUNCTIONS */
-//init.c
+
+// init.c
 extern void all_init();
-//bitboard.c
+
+// bitboard.c
 extern void print_bitboard(U64 bb);
 extern int pop_bit(U64 *bb);
 extern int count_bits(U64 b);
-//hashkeys.c
+
+// hashkeys.c
 extern U64 generate_position_key(const S_BOARD *pos);
-//board.c
+
+// board.c
 extern void reset_board(S_BOARD *pos);
 extern int parse_fen(char *fen, S_BOARD *pos);
 extern void print_board(const S_BOARD *pos);
 extern void update_list_material(S_BOARD *pos);
 extern int check_board(const S_BOARD *pos);
+
+// attack.c
+extern int square_attacked(const int sq, const int side, const S_BOARD *pos);
 
 #endif //DEFS_H
