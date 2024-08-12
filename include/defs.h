@@ -29,6 +29,7 @@ typedef unsigned long long U64;
 #define BOARD_SQ_NUMBER 120
 
 #define MAX_GAME_MOVES 2048 //half moves
+#define MAX_POSITION_MOVES 256
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -50,6 +51,16 @@ enum {
 };
 
 enum { FALSE, TRUE};
+
+typedef struct {
+    int move;
+    int score;
+} S_MOVE;
+
+typedef struct {
+    S_MOVE moves[MAX_POSITION_MOVES];
+    int count;
+} S_MOVELIST;
 
 /*  WKCA: white king king side casteling
     think of them as bits
@@ -92,6 +103,25 @@ typedef struct {
     int p_list[13][10];
 } S_BOARD;
 
+/* GAME MOVE */
+
+/*
+ This is explaining how in one intiger we ar keeping various atributes of our S_MOVE move
+
+    we use the bits in the following manner:
+
+    0000 0000 0000 0000 0000 0111 1111 - move: from                         |   (7F)      ->     0x7F
+    0000 0000 0000 0011 1111 1000 0000 - move: to                           |   (3F80)    ->     >> 0x7F
+    0000 0000 0011 1100 0000 0000 0000 - move: captured(if any)             |   (3C000)   ->     >> 0xF
+    0000 0000 0100 0000 0000 0000 0000 - move: was it a en passant move ?   |   (40000)   ->     0x40000
+    0000 0000 1000 0000 0000 0000 0000 - move: pawn start                   |   (80000)   ->     0x80000
+    0000 1111 0000 0000 0000 0000 0000 - move: promoted piece(if any)       |   (F00000)  ->     >>20 0xF
+    0001 0000 0000 0000 0000 0000 0000 - move: was it a castle move ?       |   (1000000) ->     0x1000000
+
+    we'll use hexadecimal notation
+
+*/
+
 /* MACROS */
 
 //given a file(f) and rank(r) return the equivalent square in the array
@@ -107,6 +137,18 @@ typedef struct {
 #define IsRQ(p) (piece_rook_queen[(p)])
 #define IsKn(p) (piece_knight[(p)])
 #define IsKi(p) (piece_king[(p)])
+
+#define FROMSQ(m) ((m) & 0x7F)
+#define TOSQ(m) (((m)>>7) & 0x7F)
+#define CAPTURED(m) (((m)>>14) & 0xF)
+#define PROMOTED(m) (((m)>>20) & 0xF)
+
+#define MFLAGEP 0x40000
+#define MFLAGPS 0x80000
+#define MFLAGCA 0x1000000
+
+#define MFLAGCAP 0x7C000
+#define MFLAGPROM 0xF00000
 
 /* GLOBALS */
 
@@ -159,5 +201,20 @@ extern int check_board(const S_BOARD *pos);
 
 // attack.c
 extern int square_attacked(const int sq, const int side, const S_BOARD *pos);
+
+// io.c
+extern char *print_square(const int sq);
+extern char *print_move(const int move);
+extern void print_movelist(const S_MOVELIST *list);
+
+// validate.c
+extern int sq_on_board(const int sq);
+extern int side_valid(const int side);
+extern int file_rank_valid(const int fr);
+extern int piece_valid_empty(const int pce);
+extern int piece_valid(const int pce);
+
+// movgen.c
+extern void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list);
 
 #endif //DEFS_H

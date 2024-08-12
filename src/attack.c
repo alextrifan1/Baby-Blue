@@ -2,6 +2,8 @@
 // Created by alex on 8/11/24.
 //
 
+#include <stdio.h>
+
  #include "../include/defs.h"
 
 // use this to calculate movement
@@ -17,6 +19,10 @@ const int king_direction[8] = {-1, -10, 1, 10, -9, -11, 11, 9};
 /// @return
 int square_attacked(const int sq, const int side, const S_BOARD *pos) {
     int piece, index, temp_square, direction;
+
+    ASSERT(sq_on_board(sq));
+    ASSERT(side_valid(sq));
+    ASSERT(check_board(pos));
 
     // pawns
     if (side == WHITE) {
