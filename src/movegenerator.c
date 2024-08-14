@@ -13,6 +13,26 @@ int loop_sliding_index[2] = {0, 4};
 int loop_nonsliding_pieces[6] = {wN, wK, 0, bN, bK, 0};
 int loop_nonsliding_index[2] = {0, 3};
 
+//we don't use these arrays for pawns
+int piece_direction[13][8] = {
+    { 0, 0, 0, 0, 0, 0, 0 }, //any
+    { 0, 0, 0, 0, 0, 0, 0 }, //pawns
+    { -8, -19,	-21, -12, 8, 19, 21, 12 }, // knight white
+    { -9, -11, 11, 9, 0, 0, 0, 0 }, // bishop white
+    { -1, -10,	1, 10, 0, 0, 0, 0 }, // rook white
+    { -1, -10,	1, 10, -9, -11, 11, 9 },
+    { -1, -10,	1, 10, -9, -11, 11, 9 },
+    { 0, 0, 0, 0, 0, 0, 0 }, //pawns
+    { -8, -19,	-21, -12, 8, 19, 21, 12 }, // knight black
+    { -9, -11, 11, 9, 0, 0, 0, 0 },
+    { -1, -10,	1, 10, 0, 0, 0, 0 },
+    { -1, -10,	1, 10, -9, -11, 11, 9 },
+    { -1, -10,	1, 10, -9, -11, 11, 9 }
+};
+
+const int numberof_directions[13] = { 0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8 };
+
+
 /// adds a quiet move to the moves list
 /// @param pos board structure
 /// @param move board structure
@@ -131,7 +151,7 @@ void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list) {
 
             if (pos->pieces[sq+10] == EMPTY) { // advancing a position
                 add_white_pawn_move(pos, sq, sq+10, list);
-                if (ranks_board[sq] == RANK_2 && pos->pieces_number[sq+20] == EMPTY) { // white pawns can advance two squares if on rank 2
+                if (ranks_board[sq] == RANK_2 && pos->pieces[sq+20] == EMPTY) { // white pawns can advance two squares if on rank 2
                     add_quiet_move(pos, MOVE(sq, (sq + 20), EMPTY, EMPTY, MFLAGPS), list);
                 }
             }
@@ -154,6 +174,23 @@ void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list) {
                 }
             }
         }
+
+        // castling
+        if (pos->castle_permission & WKCA) {
+            if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY) {
+                if (!square_attacked(E1, BLACK, pos) && !square_attacked(F1, BLACK, pos)) {
+                    add_quiet_move(pos, MOVE(E1, G1, EMPTY, EMPTY, MFLAGCA), list);
+                }
+            }
+        }
+        if (pos->castle_permission & WQCA) {
+            if (pos->pieces[D1] == EMPTY && pos->pieces[C1] == EMPTY && pos->pieces[B1] == EMPTY) {
+                if (!square_attacked(E1, BLACK, pos) && !square_attacked(D1, BLACK, pos)) { // the square where the king ends up is verified in make move
+
+                    add_quiet_move(pos, MOVE(E1, C1, EMPTY, EMPTY, MFLAGCA), list);
+                }
+            }
+        }
     } else { // side is BLACK
         // pawns
         for (piece_number = 0; piece_number < pos->pieces_number[bP]; piece_number++) {
@@ -163,7 +200,7 @@ void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list) {
 
             if (pos->pieces[sq - 10] == EMPTY) { // advancing a position
                 add_black_pawn_move(pos, sq, sq - 10, list);
-                if (ranks_board[sq] == RANK_7 && pos->pieces_number[sq - 20] == EMPTY) { // white pawns can advance two squares if on rank 2
+                if (ranks_board[sq] == RANK_7 && pos->pieces[sq - 20] == EMPTY) { // white pawns can advance two squares if on rank 2
                     add_quiet_move(pos, MOVE(sq, (sq - 20), EMPTY, EMPTY, MFLAGPS), list);
                 }
             }
@@ -189,6 +226,22 @@ void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list) {
 
         }
 
+        // castling
+        if (pos->castle_permission & BKCA) {
+            if (pos->pieces[F8] == EMPTY && pos->pieces[G8] == EMPTY) {
+                if (!square_attacked(E8, WHITE, pos) && !square_attacked(F8, WHITE, pos)) {
+                    add_quiet_move(pos, MOVE(E8, G8, EMPTY, EMPTY, MFLAGCA), list);
+                }
+            }
+        }
+        if (pos->castle_permission & BQCA) {
+            if (pos->pieces[D8] == EMPTY && pos->pieces[C8] == EMPTY && pos->pieces[B8] == EMPTY) {
+                if (!square_attacked(E8, WHITE, pos) && !square_attacked(D8, WHITE, pos)) { // the square where the king ends up is verified in make move
+                    add_quiet_move(pos, MOVE(E8, C8, EMPTY, EMPTY, MFLAGCA), list);
+                }
+            }
+        }
+
     }
 
     /* loop for slide pieces */
@@ -196,7 +249,31 @@ void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list) {
     piece = loop_sliding_pieces[piece_index++]; //post increment
     while (piece != 0) {
         ASSERT(piece_valid(piece));
-        printf("slider pindex:%d piece %d\n", piece_index, piece);
+
+        for (piece_number = 0; piece_number < pos->pieces_number[piece]; piece_number++) {
+            sq = pos->p_list[piece][piece_number];
+            ASSERT(sq_on_board(sq));
+            printf("piece:%c on %s\n", piece_char[piece], print_square(sq));
+
+            for (index = 0; index < numberof_directions[piece]; index++) {
+                dir = piece_direction[piece][index];
+                temp_sq = sq + dir; //this is a target square, need to change the name
+
+                while (!SQOFFBOARD(temp_sq)) {
+
+                    //BLACK ^ 1 == WHITE        WHITE ^ 1 == BLACK
+                    if (pos->pieces[temp_sq] != EMPTY) {
+                        if (piece_color[pos->pieces[temp_sq]] == (side ^ 1) ) {
+                            add_capture_move(pos, MOVE(sq, temp_sq, pos->pieces[temp_sq], EMPTY, 0), list);
+                        }
+                        break;
+                    }
+                    add_quiet_move(pos, MOVE(sq, temp_sq, EMPTY, EMPTY, 0), list);
+                    temp_sq += dir;
+                }
+
+            }
+        }
 
         piece = loop_sliding_pieces[piece_index++];
     }
@@ -207,7 +284,30 @@ void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list) {
     piece = loop_nonsliding_pieces[piece_index++]; //post increment
     while (piece != 0) {
         ASSERT(piece_valid(piece));
-        printf("nonslider pindex:%d piece %d\n", piece_index, piece);
+
+        for (piece_number = 0; piece_number < pos->pieces_number[piece]; piece_number++) {
+            sq = pos->p_list[piece][piece_number];
+            ASSERT(sq_on_board(sq));
+            printf("piece:%c on %s\n", piece_char[piece], print_square(sq));
+
+            for (index = 0; index < numberof_directions[piece]; index++) {
+                dir = piece_direction[piece][index];
+                temp_sq = sq + dir; //this is a target square, need to change the name
+
+                if (SQOFFBOARD(temp_sq)) {
+                    continue;;
+                }
+
+                //BLACK ^ 1 == WHITE        WHITE ^ 1 == BLACK
+                if (pos->pieces[temp_sq] != EMPTY) {
+                    if (piece_color[pos->pieces[temp_sq]] == (side ^ 1) ) {
+                        add_capture_move(pos, MOVE(sq, temp_sq, pos->pieces[temp_sq], EMPTY, 0), list);
+                    }
+                    continue;
+                }
+                add_quiet_move(pos, MOVE(sq, temp_sq, EMPTY, EMPTY, 0), list);
+            }
+        }
 
         piece = loop_nonsliding_pieces[piece_index++];
     }
