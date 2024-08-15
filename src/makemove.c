@@ -91,3 +91,65 @@ static void clear_piece(const int sq, S_BOARD *pos) {
      *  we no longer have sq3 as a value where there is a piece in our piece list
      */
 }
+
+static void add_piece(const int sq, S_BOARD *pos, const int piece) {
+    ASSERT(piece_valid(piece));
+    ASSERT((sq_on_board(sq)));
+    int color = piece_color[piece];
+    ASSERT(side_valid(color));
+
+    HASH_PIECE(piece, sq);
+    pos->pieces[sq] = piece;
+    if (piece_big[piece]) {
+        pos->big_pieces[color]++;
+        if (piece_major[piece]) {
+            pos->major_pieces[color]++;
+        } else {
+            pos->minor_pieces[color]++;
+        }
+    } else {
+        SETBIT(pos->pawns[color], SQ64(sq));
+        SETBIT(pos->pawns[BOTH], SQ64(sq));
+    }
+    pos->material[color] += piece_value[piece];
+    pos->p_list[piece][pos->pieces_number[piece]++] = sq;
+}
+
+static void move_piece(const int from, const int to, S_BOARD *pos) {
+    ASSERT(sq_on_board(from));
+    ASSERT(sq_on_board(to));
+
+    int index = 0;
+    int piece = pos->pieces[from];
+    int color = piece_color[piece];
+    ASSERT(side_valid(color));
+    ASSERT(piece_valid(piece));
+
+    #ifdef DEBUG
+        int t_piece_number = FALSE;
+    #endif
+
+    HASH_PIECE(piece,from);
+    pos->pieces[from] = EMPTY;
+
+    HASH_PIECE(piece,to);
+    pos->pieces[to] = piece;
+
+    if(!piece_big[piece]) {
+        CLEARBIT(pos->pawns[color],SQ64(from));
+        CLEARBIT(pos->pawns[BOTH],SQ64(from));
+        SETBIT(pos->pawns[color],SQ64(to));
+        SETBIT(pos->pawns[BOTH],SQ64(to));
+    }
+
+    for(index = 0; index < pos->pieces_number[piece]; index++) {
+        if(pos->p_list[piece][index] == from) {
+            pos->p_list[piece][index] = to;
+            #ifdef DEBUG
+                t_piece_number = TRUE;
+            #endif
+            break;
+        }
+    }
+    ASSERT(t_piece_number);
+}
