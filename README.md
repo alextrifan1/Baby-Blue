@@ -32,7 +32,7 @@ Hopefully a chess engine (+_+)
 Clone the project
 
 ```bash
-   git clone https://github.com/yourusername/baby-blue.git
+   git clone https://github.com/alextrifan1/baby-blue.git
 ```
 
 Go to the project directory
