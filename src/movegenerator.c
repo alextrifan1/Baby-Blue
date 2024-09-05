@@ -7,14 +7,14 @@
 #define MOVE(from,to,captured,promoted,flag) ( (from) | ((to) << 7) | ( (captured) << 14 ) | ( (promoted) << 20 ) | (flag))
 #define SQOFFBOARD(sq) (files_board[(sq)]==OFFBOARD) // don't want to do a function call rn
 
-int loop_sliding_pieces[8] = {wB, wR, wQ, 0, bB, bR, bQ, 0};
-int loop_sliding_index[2] = {0, 4};
+const int loop_sliding_pieces[8] = {wB, wR, wQ, 0, bB, bR, bQ, 0};
+const int loop_sliding_index[2] = {0, 4};
 
-int loop_nonsliding_pieces[6] = {wN, wK, 0, bN, bK, 0};
-int loop_nonsliding_index[2] = {0, 3};
+const int loop_nonsliding_pieces[6] = {wN, wK, 0, bN, bK, 0};
+const int loop_nonsliding_index[2] = {0, 3};
 
 //we don't use these arrays for pawns
-int piece_direction[13][8] = {
+const int piece_direction[13][8] = {
     { 0, 0, 0, 0, 0, 0, 0 }, //any
     { 0, 0, 0, 0, 0, 0, 0 }, //pawns
     { -8, -19,	-21, -12, 8, 19, 21, 12 }, // knight white
@@ -37,7 +37,7 @@ const int numberof_directions[13] = { 0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8 };
 /// @param pos board structure
 /// @param move board structure
 /// @param list move list
-void add_quiet_move(const S_BOARD *pos, int move, S_MOVELIST *list) {
+static void add_quiet_move(const S_BOARD *pos, int move, S_MOVELIST *list) {
     list->moves[list->count].move = move;
     list->moves[list->count].score = 0;
     list->count++;
@@ -47,7 +47,7 @@ void add_quiet_move(const S_BOARD *pos, int move, S_MOVELIST *list) {
 /// @param pos board structure
 /// @param move board structure
 /// @param list
-void add_capture_move(const S_BOARD *pos, int move, S_MOVELIST *list) {
+static void add_capture_move(const S_BOARD *pos, int move, S_MOVELIST *list) {
     list->moves[list->count].move = move;
     list->moves[list->count].score = 0;
     list->count++;
@@ -57,14 +57,14 @@ void add_capture_move(const S_BOARD *pos, int move, S_MOVELIST *list) {
 /// @param pos board structure
 /// @param move board structure
 /// @param list move list
-void add_enpassante_move(const S_BOARD *pos, int move, S_MOVELIST *list) {
+static void add_enpassante_move(const S_BOARD *pos, int move, S_MOVELIST *list) {
     list->moves[list->count].move = move;
     list->moves[list->count].score = 0;
     list->count++;
 }
 
 /// deals with the case of a pawn capturing a piece (and promoting to a new piece)
-void add_white_pawn_capture_move(const S_BOARD *pos, const int from, const int to, const int captured, S_MOVELIST *list) {
+static void add_white_pawn_capture_move(const S_BOARD *pos, const int from, const int to, const int captured, S_MOVELIST *list) {
 
     ASSERT(piece_valid_empty(captured));
     ASSERT(sq_on_board(from));
@@ -81,7 +81,7 @@ void add_white_pawn_capture_move(const S_BOARD *pos, const int from, const int t
 }
 
 /// deals with the case of a pawn capturing a piece (and promoting to a new piece)
-void add_black_pawn_capture_move(const S_BOARD *pos, const int from, const int to, const int captured, S_MOVELIST *list) {
+static void add_black_pawn_capture_move(const S_BOARD *pos, const int from, const int to, const int captured, S_MOVELIST *list) {
 
     ASSERT(piece_valid_empty(captured));
     ASSERT(sq_on_board(from));
@@ -98,7 +98,7 @@ void add_black_pawn_capture_move(const S_BOARD *pos, const int from, const int t
 }
 
 /// deals with the case of a pawn advancing a position without capturing a piece (and promoting to a new piece)
-void add_black_pawn_move(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
+static void add_black_pawn_move(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
     ASSERT(sq_on_board(from));
     ASSERT(sq_on_board(to));
@@ -114,7 +114,7 @@ void add_black_pawn_move(const S_BOARD *pos, const int from, const int to, S_MOV
 }
 
 /// deals with the case of a pawn advancing a position without capturing a piece (and promoting to a new piece)
-void add_white_pawn_move(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
+static void add_white_pawn_move(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
     ASSERT(sq_on_board(from));
     ASSERT(sq_on_board(to));
@@ -140,8 +140,6 @@ void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list) {
     int dir = 0;
     int index = 0;
     int piece_index = 0;
-
-    printf("\nSIDE:%d\n:", side);
 
     if (side == WHITE) {
         // pawns

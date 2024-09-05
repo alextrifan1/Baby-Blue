@@ -21,7 +21,7 @@ int square_attacked(const int sq, const int side, const S_BOARD *pos) {
     int piece, index, temp_square, direction;
 
     ASSERT(sq_on_board(sq));
-    ASSERT(side_valid(sq));
+    ASSERT(side_valid(side));
     ASSERT(check_board(pos));
 
     // pawns

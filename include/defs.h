@@ -89,7 +89,7 @@ typedef struct {
 
     int ply; //half move
     int history_ply; // index: how many half moves were made
-    U64 positon_key;
+    U64 position_key;
 
     int pieces_number[13];
     int big_pieces[2]; //anything but pawns
@@ -169,6 +169,7 @@ extern int piece_major[13];
 extern int piece_minor[13];
 extern int piece_value[13];
 extern int piece_color[13];
+extern int piece_pawn[13];
 
 extern int files_board[BOARD_SQ_NUMBER];
 extern int ranks_board[BOARD_SQ_NUMBER];
@@ -178,6 +179,7 @@ extern int piece_knight[13];
 extern int piece_king[13];
 extern int piece_rook_queen[13];
 extern int piece_bishop_queen[13];
+extern int piece_slides[13];
 
 /* FUNCTIONS */
 

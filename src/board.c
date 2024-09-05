@@ -78,7 +78,7 @@ int check_board(const S_BOARD *pos) {
     ASSERT(temp_big_piece[WHITE] == pos->big_pieces[WHITE] && temp_big_piece[BLACK] == pos->big_pieces[BLACK])
 
     ASSERT(pos->side == WHITE || pos->side == BLACK);
-    ASSERT(generate_position_key(pos) == pos->positon_key);
+    ASSERT(generate_position_key(pos) == pos->position_key);
 
     ASSERT(pos->en_passant == NO_SQ || (ranks_board[pos->en_passant] == RANK_6 && pos->side == WHITE)
            || (ranks_board[pos->en_passant] == RANK_3 && pos->side == BLACK));
@@ -218,7 +218,7 @@ int parse_fen(char *fen, S_BOARD *pos) {
         pos->en_passant = FR2SQ(file,rank);
     }
 
-    pos->positon_key = generate_position_key(pos);
+    pos->position_key = generate_position_key(pos);
     update_list_material(pos);
     return 0;
 }
@@ -261,7 +261,7 @@ void reset_board(S_BOARD *pos) {
     pos->history_ply = 0;
 
     pos->castle_permission = 0;
-    pos->positon_key = 0ULL;
+    pos->position_key = 0ULL;
 }
 
 void print_board(const S_BOARD *pos) {
@@ -291,5 +291,5 @@ void print_board(const S_BOARD *pos) {
           pos->castle_permission & BKCA ? 'k' : '-',
           pos->castle_permission & BQCA ? 'q' : '-'
           );
-    printf("position key: %llX\n", pos->positon_key);
+    printf("position key: %llX\n", pos->position_key);
 }

@@ -23,10 +23,12 @@ int main() {
      S_BOARD board[1];
      S_MOVELIST list[1];
 
-     parse_fen(TESTMOVE, board);
+     parse_fen(ROOKS, board);
      generate_all_moves(board, list);
 
      print_movelist(list);
 
      return 0;
 }
+
+
