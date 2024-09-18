@@ -23,29 +23,7 @@ int main() {
      S_MOVELIST list[1];
 
      parse_fen(START_FEN, board);
-     generate_all_moves(board, list);
-
-     int move_number = 0;
-     int move = 0;
-
-     print_board(board);
-     getchar();
-
-     for (move_number = 0; move_number < list->count; move_number++) {
-          move = list->moves[move_number].move;
-
-          if (!make_move(board, move)) {
-               continue;
-          }
-          printf("\nTAKEN:%s\n", print_move(move));
-          print_board(board);
-
-          take_move(board);
-          printf("\nTAKEN:%s\n", print_move(move));
-          print_board(board);
-          getchar();
-
-     }
+     perf_test(4, board);
 
      return 0;
 }

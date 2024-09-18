@@ -2,7 +2,7 @@
 // Created by alex on 8/14/24.
 //
 
-#include <defs.h>
+#include "defs.h"
 #include <stdio.h>
 #include <strings.h>
 
@@ -165,7 +165,6 @@ int make_move(S_BOARD *pos, int move) {
     int from = FROMSQ(move);
     int to = TOSQ(move);
     int side = pos->side;
-
 
     ASSERT(sq_on_board(from));
     ASSERT(sq_on_board(to));

@@ -225,6 +225,7 @@ extern void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list);
 extern int make_move(S_BOARD *pos, int move);
 extern void take_move(S_BOARD *pos);
 
-// perftesting.c
+// perft.c
+extern void perf_test(int depth, S_BOARD *pos);
 
 #endif //DEFS_H

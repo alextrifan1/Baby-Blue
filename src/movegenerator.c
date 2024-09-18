@@ -2,7 +2,7 @@
 // Created by alex on 8/12/24.
 //
 #include <stdio.h>
-#include <defs.h>
+#include "defs.h"
 
 
 //////////// for debug, delete when fixed
@@ -150,7 +150,7 @@ static void add_black_pawn_move(const S_BOARD *pos, const int from, const int to
             add_capture_move(pos, MOVE(from, to, EMPTY, bB, 0), list);
             add_capture_move(pos, MOVE(from, to, EMPTY, bN, 0), list);
         } else {
-            add_capture_move(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
+            add_quiet_move(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
         }
     }
 }
