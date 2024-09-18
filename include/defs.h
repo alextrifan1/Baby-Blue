@@ -211,12 +211,20 @@ extern void print_movelist(const S_MOVELIST *list);
 
 // validate.c
 extern int sq_on_board(const int sq);
+extern int piece_valid_empty_offboard(const int pce);
 extern int side_valid(const int side);
 extern int file_rank_valid(const int fr);
 extern int piece_valid_empty(const int pce);
 extern int piece_valid(const int pce);
+extern int sq_is_120(const int sq);
 
 // movgen.c
 extern void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list);
+
+// makemove.c
+extern int make_move(S_BOARD *pos, int move);
+extern void take_move(S_BOARD *pos);
+
+// perftesting.c
 
 #endif //DEFS_H

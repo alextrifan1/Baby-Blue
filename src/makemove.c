@@ -165,6 +165,8 @@ int make_move(S_BOARD *pos, int move) {
     int from = FROMSQ(move);
     int to = TOSQ(move);
     int side = pos->side;
+
+
     ASSERT(sq_on_board(from));
     ASSERT(sq_on_board(to));
     ASSERT(side_valid(side));
@@ -269,6 +271,7 @@ int make_move(S_BOARD *pos, int move) {
 void take_move(S_BOARD *pos) {
 
     ASSERT(check_board(pos));
+
 
     pos->history_ply--;
     pos->ply--;

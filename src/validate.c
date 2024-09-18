@@ -4,6 +4,10 @@
 
 #include <defs.h>
 
+int piece_valid_empty_offboard(const int pce) {
+    return (piece_valid_empty(pce) || pce == OFFBOARD);
+}
+
 int sq_on_board(const int sq) {
     return files_board[sq]==OFFBOARD ? 0 : 1;
 }
@@ -22,4 +26,8 @@ int piece_valid_empty(const int pce) {
 
 int piece_valid(const int pce) {
     return (pce >= wP && pce <= bK) ? 1 : 0;
+}
+
+int sq_is_120(const int sq) {
+    return (sq>=0 && sq<120);
 }

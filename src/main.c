@@ -16,17 +16,36 @@
 #define CASTLE2 "3rk2r/8/8/8/8/8/6p1/R3K2R b KQk - 0 1"
 #define TESTMOVE "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 
-
 int main() {
      all_init();
 
      S_BOARD board[1];
      S_MOVELIST list[1];
 
-     parse_fen(ROOKS, board);
+     parse_fen(START_FEN, board);
      generate_all_moves(board, list);
 
-     print_movelist(list);
+     int move_number = 0;
+     int move = 0;
+
+     print_board(board);
+     getchar();
+
+     for (move_number = 0; move_number < list->count; move_number++) {
+          move = list->moves[move_number].move;
+
+          if (!make_move(board, move)) {
+               continue;
+          }
+          printf("\nTAKEN:%s\n", print_move(move));
+          print_board(board);
+
+          take_move(board);
+          printf("\nTAKEN:%s\n", print_move(move));
+          print_board(board);
+          getchar();
+
+     }
 
      return 0;
 }

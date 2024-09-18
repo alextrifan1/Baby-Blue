@@ -38,19 +38,21 @@ int square_attacked(const int sq, const int side, const S_BOARD *pos) {
     // knights
     for (index = 0; index < 8; index++) {
         piece = pos->pieces[sq + knight_direction[index]];
-        if (piece != OFFBOARD && piece != EMPTY) {
-            if (IsKn(piece) && piece_color[piece] == side) {
+        ASSERT(piece_valid_empty_offboard(piece));
+        if (piece != EMPTY)
+            if (piece != OFFBOARD && IsKn(piece) && piece_color[piece] == side) {
                 // is the piece a knight of right color
                 return TRUE;
             }
-        }
     }
 
     // rooks, queens
     for (index = 0; index < 4; index++) {
         direction = rook_direction[index];
         temp_square = sq + direction;
+        ASSERT(sq_is_120(temp_square));
         piece = pos->pieces[temp_square];
+        ASSERT(piece_valid_empty_offboard(piece));
         while (piece != OFFBOARD) {
             if (piece != EMPTY) {
                 if (IsRQ(piece) && piece_color[piece] == side) {
@@ -59,6 +61,7 @@ int square_attacked(const int sq, const int side, const S_BOARD *pos) {
                 break;
             }
             temp_square += direction;
+            ASSERT(sq_is_120(temp_square));
             piece = pos->pieces[temp_square];
         }
     }
@@ -67,7 +70,9 @@ int square_attacked(const int sq, const int side, const S_BOARD *pos) {
     for (index = 0; index < 4; index++) {
         direction = bishop_direction[index];
         temp_square = sq + direction;
+        ASSERT(sq_is_120(temp_square));
         piece = pos->pieces[temp_square];
+        ASSERT(piece_valid_empty_offboard(piece));
         while (piece != OFFBOARD) {
             if (piece != EMPTY) {
                 if (IsBQ(piece) && piece_color[piece] == side) {
@@ -76,6 +81,7 @@ int square_attacked(const int sq, const int side, const S_BOARD *pos) {
                 break;
             }
             temp_square += direction;
+            ASSERT(sq_is_120(temp_square));
             piece = pos->pieces[temp_square];
         }
     }
@@ -83,11 +89,12 @@ int square_attacked(const int sq, const int side, const S_BOARD *pos) {
     // kings
     for (index = 0; index < 8; index++) {
         piece = pos->pieces[sq + king_direction[index]];
-        if (piece != OFFBOARD && piece != EMPTY) {
-            if (IsKi(piece) && piece_color[piece] == side) {
+        ASSERT(piece_valid_empty_offboard(piece));
+        if (piece != EMPTY)
+            if (piece != OFFBOARD && IsKi(piece) && piece_color[piece] == side) {
                 return TRUE;
             }
-        }
     }
+
     return FALSE;
 }
