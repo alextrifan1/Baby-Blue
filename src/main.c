@@ -15,6 +15,8 @@
 #define CASTLE1 "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"
 #define CASTLE2 "3rk2r/8/8/8/8/8/6p1/R3K2R b KQk - 0 1"
 #define TESTMOVE "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+#define HARD_FEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+#define PERFTFEN "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N w - - 0 1"
 
 int main() {
      all_init();
@@ -22,8 +24,29 @@ int main() {
      S_BOARD board[1];
      S_MOVELIST list[1];
 
-     parse_fen(START_FEN, board);
-     perf_test(4, board);
+     parse_fen(PERFTFEN, board);
+     //perf_test(3, board);
+
+     char input[6];
+     int move = NOMOVE;
+     while (TRUE) {
+          print_board(board);
+          printf("please enter move > ");
+          fgets(input, 6, stdin);
+
+          if (input[0] == 'q') {
+               break;
+          } else if (input[0] == 't') {
+               take_move(board);
+          } else {
+               move = parse_move(input, board);
+               if (move != NOMOVE) {
+                    make_move(board, move);
+               }
+          }
+
+          fflush(stdin);
+     }
 
      return 0;
 }

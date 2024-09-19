@@ -145,10 +145,10 @@ static void add_black_pawn_move(const S_BOARD *pos, const int from, const int to
     ASSERT(sq_on_board(to));
     if (from != to) {
         if (ranks_board[from] == RANK_2) {
-            add_capture_move(pos, MOVE(from, to, EMPTY, bQ, 0), list);
-            add_capture_move(pos, MOVE(from, to, EMPTY, bR, 0), list);
-            add_capture_move(pos, MOVE(from, to, EMPTY, bB, 0), list);
-            add_capture_move(pos, MOVE(from, to, EMPTY, bN, 0), list);
+            add_quiet_move(pos, MOVE(from, to, EMPTY, bQ, 0), list);
+            add_quiet_move(pos, MOVE(from, to, EMPTY, bR, 0), list);
+            add_quiet_move(pos, MOVE(from, to, EMPTY, bB, 0), list);
+            add_quiet_move(pos, MOVE(from, to, EMPTY, bN, 0), list);
         } else {
             add_quiet_move(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
         }
@@ -163,10 +163,10 @@ static void add_white_pawn_move(const S_BOARD *pos, const int from, const int to
     ASSERT(check_board(pos));
     if (from != to) {
         if (ranks_board[from] == RANK_7) {
-            add_capture_move(pos, MOVE(from, to, EMPTY, wQ, 0), list);
-            add_capture_move(pos, MOVE(from, to, EMPTY, wR, 0), list);
-            add_capture_move(pos, MOVE(from, to, EMPTY, wB, 0), list);
-            add_capture_move(pos, MOVE(from, to, EMPTY, wN, 0), list);
+            add_quiet_move(pos, MOVE(from, to, EMPTY, wQ, 0), list);
+            add_quiet_move(pos, MOVE(from, to, EMPTY, wR, 0), list);
+            add_quiet_move(pos, MOVE(from, to, EMPTY, wB, 0), list);
+            add_quiet_move(pos, MOVE(from, to, EMPTY, wN, 0), list);
         } else {
             add_quiet_move(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
         }

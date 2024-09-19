@@ -48,6 +48,53 @@ char *print_move(const int move) {
     return move_string;
 }
 
+/// take a move from user
+/// @param ptr_char -move
+/// @param pos - board structure
+/// @return
+int parse_move(char* ptr_char, S_BOARD* pos) {
+    ASSERT(check_board(pos));
+
+    if(ptr_char[1] > '8' || ptr_char[1] < '1') return NOMOVE;
+    if(ptr_char[3] > '8' || ptr_char[3] < '1') return NOMOVE;
+    if(ptr_char[0] > 'h' || ptr_char[0] < 'a') return NOMOVE;
+    if(ptr_char[2] > 'h' || ptr_char[2] < 'a') return NOMOVE;
+
+    int from = FR2SQ(ptr_char[0] - 'a', ptr_char[1] - '1');
+    int to = FR2SQ(ptr_char[2] - 'a', ptr_char[3] - '1');
+
+    ASSERT(sq_on_board(from) && sq_on_board(to));
+
+    S_MOVELIST list[1];
+    generate_all_moves(pos, list);
+    int move_nr = 0;
+    int move = 0;
+    int promoted_piece = EMPTY;
+
+    for(move_nr = 0; move_nr < list->count; move_nr++) {
+        move = list->moves[move_nr].move;
+        if(FROMSQ(move)==from && TOSQ(move)==to) {
+            promoted_piece = PROMOTED(move);
+            if(promoted_piece!=EMPTY) { // see to what we promoted
+                if(IsRQ(promoted_piece) && !IsBQ(promoted_piece) && ptr_char[4]=='r') {
+                    return move;
+                } else if(!IsRQ(promoted_piece) && IsBQ(promoted_piece) && ptr_char[4]=='b') {
+                    return move;
+                } else if(IsRQ(promoted_piece) && IsBQ(promoted_piece) && ptr_char[4]=='q') {
+                    return move;
+                } else if(IsKn(promoted_piece) && ptr_char[4]=='n') {
+                    return move;
+                }
+                continue;
+            }
+            return move;
+        }
+    }
+
+    return NOMOVE;
+
+}
+
 void print_movelist(const S_MOVELIST *list) {
     int index = 0, score = 0, move = 0;
 

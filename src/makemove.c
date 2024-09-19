@@ -337,7 +337,7 @@ void take_move(S_BOARD *pos) {
     }
 
     if(PROMOTED(move) != EMPTY)   {
-        ASSERT(piece_valid(PROMOTED(move)) && !piece_valid(PROMOTED(move)));
+        ASSERT(piece_valid(PROMOTED(move)) && !piece_pawn[PROMOTED(move)]);
         clear_piece(from, pos);
         add_piece(from, pos, (piece_color[PROMOTED(move)] == WHITE ? wP : bP));
     }

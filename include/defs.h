@@ -150,6 +150,8 @@ typedef struct {
 #define MFLAGCAP 0x7C000
 #define MFLAGPROM 0xF00000
 
+#define NOMOVE 0
+
 /* GLOBALS */
 
 extern int square120_to_square64[BOARD_SQ_NUMBER];
@@ -208,6 +210,7 @@ extern int square_attacked(const int sq, const int side, const S_BOARD *pos);
 extern char *print_square(const int sq);
 extern char *print_move(const int move);
 extern void print_movelist(const S_MOVELIST *list);
+extern int parse_move(char* ptr_char, S_BOARD* pos);
 
 // validate.c
 extern int sq_on_board(const int sq);
