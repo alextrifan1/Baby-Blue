@@ -231,4 +231,8 @@ extern void take_move(S_BOARD *pos);
 // perft.c
 extern void perf_test(int depth, S_BOARD *pos);
 
+//search.c
+extern int is_repetition(const S_BOARD *pos);
+extern void search_position(S_BOARD pos);
+
 #endif //DEFS_H

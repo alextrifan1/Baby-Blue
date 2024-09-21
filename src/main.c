@@ -24,7 +24,7 @@ int main() {
      S_BOARD board[1];
      S_MOVELIST list[1];
 
-     parse_fen(PERFTFEN, board);
+     parse_fen(START_FEN, board);
      //perf_test(3, board);
 
      char input[6];
@@ -42,6 +42,11 @@ int main() {
                move = parse_move(input, board);
                if (move != NOMOVE) {
                     make_move(board, move);
+                    /*if (is_repetition(board)) {
+                         printf("REP SEEN\n");
+                    }*/
+               } else {
+                    printf("Move not parsed %s\n", input);
                }
           }
 
