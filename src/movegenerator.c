@@ -56,6 +56,24 @@ const int piece_direction[13][8] = {
 
 const int numberof_directions[13] = { 0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8 };
 
+int move_exists(S_BOARD *pos, const int move) {
+
+    S_MOVELIST list[1];
+    generate_all_moves(pos,list);
+
+    int move_nr = 0;
+    for(move_nr = 0; move_nr < list->count; ++move_nr) {
+
+        if ( !make_move(pos,list->moves[move_nr].move))  {
+            continue;
+        }
+        take_move(pos);
+        if(list->moves[move_nr].move == move) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
 
 /// adds a quiet move to the moves list
 /// @param pos board structure
@@ -296,7 +314,7 @@ void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list) {
         for (piece_number = 0; piece_number < pos->pieces_number[piece]; piece_number++) {
             sq = pos->p_list[piece][piece_number];
             ASSERT(sq_on_board(sq));
-            printf("piece:%c on %s\n", piece_char[piece], print_square(sq));
+            //printf("piece:%c on %s\n", piece_char[piece], print_square(sq));
 
             for (index = 0; index < numberof_directions[piece]; index++) {
                 dir = piece_direction[piece][index];
@@ -333,7 +351,7 @@ void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list) {
         for (piece_number = 0; piece_number < pos->pieces_number[piece]; piece_number++) {
             sq = pos->p_list[piece][piece_number];
             ASSERT(sq_on_board(sq));
-            printf("piece:%c on %s\n", piece_char[piece], print_square(sq));
+            //printf("piece:%c on %s\n", piece_char[piece], print_square(sq));
 
             for (index = 0; index < numberof_directions[piece]; index++) {
                 dir = piece_direction[piece][index];

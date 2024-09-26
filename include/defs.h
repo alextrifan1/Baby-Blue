@@ -30,6 +30,7 @@ typedef unsigned long long U64;
 
 #define MAX_GAME_MOVES 2048 //half moves
 #define MAX_POSITION_MOVES 256
+#define MAXDEPTH 64
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -61,6 +62,16 @@ typedef struct {
     S_MOVE moves[MAX_POSITION_MOVES];
     int count;
 } S_MOVELIST;
+
+typedef struct {
+    U64 position_key;
+    int move;
+} S_PVENTRY;
+
+typedef struct {
+    S_PVENTRY *p_table;
+    int nr_entries;
+} S_PVTABLE;
 
 /*  WKCA: white king king side casteling
     think of them as bits
@@ -101,6 +112,9 @@ typedef struct {
 
     // piece list -- for time savings
     int p_list[13][10];
+
+    S_PVTABLE pv_table[1];
+    int pv_array[MAXDEPTH];
 } S_BOARD;
 
 /* GAME MOVE */
@@ -223,6 +237,7 @@ extern int sq_is_120(const int sq);
 
 // movgen.c
 extern void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list);
+extern int move_exists(S_BOARD *pos, const int move);
 
 // makemove.c
 extern int make_move(S_BOARD *pos, int move);
@@ -231,8 +246,17 @@ extern void take_move(S_BOARD *pos);
 // perft.c
 extern void perf_test(int depth, S_BOARD *pos);
 
-//search.c
+// search.c
 extern int is_repetition(const S_BOARD *pos);
 extern void search_position(S_BOARD pos);
+
+// misc.c
+extern int get_time_ms();
+
+// principal_var_table
+extern void init_pv_table(S_PVTABLE *table);
+extern void store_pv_move(const S_BOARD *pos, const int move);
+extern int probe_pv_table(const S_BOARD *pos);
+extern int get_pv_line(const int depth, S_BOARD *pos);
 
 #endif //DEFS_H

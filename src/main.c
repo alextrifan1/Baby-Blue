@@ -29,6 +29,8 @@ int main() {
 
      char input[6];
      int move = NOMOVE;
+     int pv_num = 0;
+     int max = 0;
      while (TRUE) {
           print_board(board);
           printf("please enter move > ");
@@ -38,9 +40,19 @@ int main() {
                break;
           } else if (input[0] == 't') {
                take_move(board);
-          } else {
+          } else if (input[0] == 'p') {
+               //perf_test(4, board);
+               max = get_pv_line(4, board);
+               printf("pv line of %d moves: ", max);
+               for (pv_num = 0; pv_num < max; pv_num++) {
+                    move = board->pv_array[pv_num];
+                    printf(" %s", print_move(move));
+               }
+               printf("\n");
+          }else {
                move = parse_move(input, board);
                if (move != NOMOVE) {
+                    store_pv_move(board, move);
                     make_move(board, move);
                     /*if (is_repetition(board)) {
                          printf("REP SEEN\n");

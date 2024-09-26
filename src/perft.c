@@ -38,6 +38,7 @@ void perf_test(int depth, S_BOARD *pos) {
     print_board(pos);
     printf("\nStarting Test To Depth: %d\n", depth);
     leaf_nodes = 0;
+    int start = get_time_ms();
 
     S_MOVELIST list[1];
     generate_all_moves(pos, list);
@@ -56,7 +57,7 @@ void perf_test(int depth, S_BOARD *pos) {
         printf("move %d : %s : %ld\n", move_nr+1, print_move(move), old_nodes);
     }
 
-    printf("\nTest Complete : %ld nodes visited\n", leaf_nodes);
+    printf("\nTest Complete : %ld nodes visited in %dms\n", leaf_nodes, get_time_ms() - start);
 
     return;
 
