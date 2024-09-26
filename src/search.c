@@ -5,7 +5,11 @@
 #include <stdio.h>
 #include "defs.h"
 
-int is_repetition(const S_BOARD *pos) {
+static void checkup() {
+    // check if time up or stop from gui
+}
+
+static int is_repetition(const S_BOARD *pos) {
     int index;
 
     for (index = pos->history_ply - pos->fifty_moves; index < pos->history_ply; index++) {
@@ -19,6 +23,19 @@ int is_repetition(const S_BOARD *pos) {
     return FALSE;
 }
 
-void search_position(S_BOARD pos) {
+static void clear_for_search(S_BOARD *pos, S_SEARCHINFO *info) {
 
+}
+
+static int quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
+    return 0;
+}
+
+static int alpha_beta(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info, int do_null) {
+    return 0;
+}
+
+
+void search_position(S_BOARD *pos, S_SEARCHINFO *info) {
+    // iterative deepening, search init
 }

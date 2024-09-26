@@ -115,7 +115,27 @@ typedef struct {
 
     S_PVTABLE pv_table[1];
     int pv_array[MAXDEPTH];
+
+    int search_history[13][BOARD_SQ_NUMBER];
+    int search_killer[2][MAXDEPTH];
+
 } S_BOARD;
+
+typedef struct {
+    int start_time;
+    int stop_time;
+    int depth;
+    int depth_set;
+    int time_set;
+    int moves_to_go;
+    int infinite;
+
+    long nodes;
+
+    int quit;
+    int stopped;
+
+} S_SEARCHINFO;
 
 /* GAME MOVE */
 
@@ -248,7 +268,7 @@ extern void perf_test(int depth, S_BOARD *pos);
 
 // search.c
 extern int is_repetition(const S_BOARD *pos);
-extern void search_position(S_BOARD pos);
+extern void search_position(S_BOARD *pos, S_SEARCHINFO *info);
 
 // misc.c
 extern int get_time_ms();
@@ -258,5 +278,8 @@ extern void init_pv_table(S_PVTABLE *table);
 extern void store_pv_move(const S_BOARD *pos, const int move);
 extern int probe_pv_table(const S_BOARD *pos);
 extern int get_pv_line(const int depth, S_BOARD *pos);
+
+// evaluate.c
+extern int evaluate_position(const S_BOARD *pos);
 
 #endif //DEFS_H
