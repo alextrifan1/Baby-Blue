@@ -17,14 +17,16 @@
 #define TESTMOVE "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 #define HARD_FEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 #define PERFTFEN "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N w - - 0 1"
+#define MATE3 "2rr3k/pp3pp1/1nnqbN1p/3pN3/2pP4/2P3Q1/PPB4P/R4RK1 w - -"
 
 int main() {
      all_init();
 
      S_BOARD board[1];
      S_MOVELIST list[1];
+     S_SEARCHINFO info[1];
 
-     parse_fen(START_FEN, board);
+     parse_fen(MATE3, board);
      //perf_test(3, board);
 
      char input[6];
@@ -40,16 +42,11 @@ int main() {
                break;
           } else if (input[0] == 't') {
                take_move(board);
-          } else if (input[0] == 'p') {
-               //perf_test(4, board);
-               max = get_pv_line(4, board);
-               printf("pv line of %d moves: ", max);
-               for (pv_num = 0; pv_num < max; pv_num++) {
-                    move = board->pv_array[pv_num];
-                    printf(" %s", print_move(move));
-               }
-               printf("\n");
-          }else {
+          } else if (input[0] == 's') {
+               info->depth = 4;
+               search_position(board, info);
+
+          } else {
                move = parse_move(input, board);
                if (move != NOMOVE) {
                     store_pv_move(board, move);

@@ -34,6 +34,8 @@ typedef unsigned long long U64;
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
+#define INFINITE 30000
+
 enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK}; //w-white b-black, P-pawn...
 enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE}; //board horizontal
 enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE}; //board vertical
@@ -134,6 +136,9 @@ typedef struct {
 
     int quit;
     int stopped;
+
+    float fh; //fail high
+    float fhf; //-||- first
 
 } S_SEARCHINFO;
 
@@ -278,6 +283,7 @@ extern void init_pv_table(S_PVTABLE *table);
 extern void store_pv_move(const S_BOARD *pos, const int move);
 extern int probe_pv_table(const S_BOARD *pos);
 extern int get_pv_line(const int depth, S_BOARD *pos);
+extern void clear_pv_table(S_PVTABLE *table);
 
 // evaluate.c
 extern int evaluate_position(const S_BOARD *pos);
