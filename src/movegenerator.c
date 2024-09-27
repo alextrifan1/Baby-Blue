@@ -56,6 +56,19 @@ const int piece_direction[13][8] = {
 
 const int numberof_directions[13] = { 0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8 };
 
+const int victim_score[13] = {0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600};
+static int MvvLvaScores[13][13]; // Most Valuable Victim, Least Valuable Attacker
+
+void init_MvvLva() {
+    int attacker;
+    int victim;
+    for (attacker = wP; attacker <= bK; attacker++) {
+        for (victim = wP; victim <= bK; victim++) {
+            MvvLvaScores[victim][attacker] = victim_score[victim] + 6 - (victim_score[attacker]/100);
+        }
+    }
+}
+
 int move_exists(S_BOARD *pos, const int move) {
 
     S_MOVELIST list[1];
@@ -102,7 +115,7 @@ static void add_capture_move(const S_BOARD *pos, int move, S_MOVELIST *list) {
     ASSERT(check_board(pos));
 
     list->moves[list->count].move = move;
-    list->moves[list->count].score = 0;
+    list->moves[list->count].score = MvvLvaScores[CAPTURED(move)][pos->pieces[FROMSQ(move)]];
     list->count++;
 
 }
@@ -116,7 +129,7 @@ static void add_enpassante_move(const S_BOARD *pos, int move, S_MOVELIST *list) 
     ASSERT(sq_on_board(TOSQ(move)));
 
     list->moves[list->count].move = move;
-    list->moves[list->count].score = 0;
+    list->moves[list->count].score = 105;
     list->count++;
 }
 

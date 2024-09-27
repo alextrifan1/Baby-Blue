@@ -92,4 +92,5 @@ void all_init() {
     init_bitmasks();
     init_hashkeys();
     init_files_ranks_board();
+    init_MvvLva();
 }

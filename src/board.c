@@ -263,8 +263,8 @@ void reset_board(S_BOARD *pos) {
     pos->castle_permission = 0;
     pos->position_key = 0ULL;
 
-    pos->pv_table->p_table = NULL;                              /////////////----------------> if pointer errors, vid:51 comments
-    init_pv_table(pos->pv_table);
+    /*pos->pv_table->p_table = NULL;                              /////////////----------------> if pointer errors, vid:51 comments
+    init_pv_table(pos->pv_table);*/
 }
 
 void print_board(const S_BOARD *pos) {

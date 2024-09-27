@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 
-#define DEBUG
+//#define DEBUG
 
 #ifndef DEBUG
 #define ASSERT(n)
@@ -263,6 +263,7 @@ extern int sq_is_120(const int sq);
 // movgen.c
 extern void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list);
 extern int move_exists(S_BOARD *pos, const int move);
+extern void init_MvvLva();
 
 // makemove.c
 extern int make_move(S_BOARD *pos, int move);

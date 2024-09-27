@@ -12,7 +12,24 @@ static void checkup() {
     // check if time up or stop from gui
 }
 
-//TODO: make this static and remove from defs.h
+static void pick_next_move(int move_nr, S_MOVELIST *list) {
+    S_MOVE temp;
+    int index = 0;
+    int best_score = 0;
+    int best_nr = move_nr;
+
+    for (index = move_nr; index < list->count; index++) {
+        if (list->moves[index].score > best_score) {
+            best_score = list->moves[index].score;
+            best_nr = index;
+        }
+    }
+    temp = list->moves[move_nr];
+    list->moves[move_nr] = list->moves[best_nr];
+    list->moves[best_nr] = temp;
+}
+
+//TODO: make this static and remove from defs.h (maybe)
 int is_repetition(const S_BOARD *pos) {
     int index;
 
@@ -84,6 +101,9 @@ static int alpha_beta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO
     int score = -INFINITE;
 
     for (move_nr = 0; move_nr < list->count; move_nr++) {
+
+        pick_next_move(move_nr, list);
+
         if (!make_move(pos, list->moves[move_nr].move)) {
             continue;
         }

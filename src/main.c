@@ -18,15 +18,18 @@
 #define HARD_FEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 #define PERFTFEN "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N w - - 0 1"
 #define MATE3 "2rr3k/pp3pp1/1nnqbN1p/3pN3/2pP4/2P3Q1/PPB4P/R4RK1 w - -"
+#define GOOD "r1b1k2r/ppppnppp/2n2q2/2b5/3NP3/2P1B3/PP3PPP/RN1QKB1R w KQkq - 0 1"
 
 int main() {
      all_init();
 
      S_BOARD board[1];
+     board->pv_table->p_table = NULL;                              /////////////----------------> if pointer errors, vid:51 comments
+     init_pv_table(board->pv_table);
      S_MOVELIST list[1];
      S_SEARCHINFO info[1];
 
-     parse_fen(MATE3, board);
+     parse_fen(GOOD, board);
      //perf_test(3, board);
 
      char input[6];
@@ -43,7 +46,7 @@ int main() {
           } else if (input[0] == 't') {
                take_move(board);
           } else if (input[0] == 's') {
-               info->depth = 4;
+               info->depth = 5;
                search_position(board, info);
 
           } else {
@@ -61,6 +64,8 @@ int main() {
 
           fflush(stdin);
      }
+
+     free(board->pv_table->p_table);
 
      return 0;
 }
