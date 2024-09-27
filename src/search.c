@@ -70,15 +70,72 @@ static void clear_for_search(S_BOARD *pos, S_SEARCHINFO *info) {
 }
 
 static int quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
-    return 0;
+
+    ASSERT(check_board(pos));
+    info->nodes++;
+
+    if (is_repetition(pos) || pos->fifty_moves >= 100) {
+        return 0;
+    }
+    if (pos->ply > MAXDEPTH - 1) {
+        return evaluate_position(pos);
+    }
+
+    int score = evaluate_position(pos);
+
+    if (score >= beta) {
+        return beta;
+    }
+    if (score > alpha) {
+        alpha = score;
+    }
+
+    S_MOVELIST list[1];
+    generate_all_captures(pos, list);
+
+    int move_nr = 0;
+    int legal = 0;
+    int old_alpha = alpha;
+    int best_move = NOMOVE;
+    score = -INFINITE;
+    int pv_move = probe_pv_table(pos);
+
+    for (move_nr = 0; move_nr < list->count; move_nr++) {
+
+        pick_next_move(move_nr, list);
+
+        if (!make_move(pos, list->moves[move_nr].move)) {
+            continue;
+        }
+        legal++;
+        score = -quiescence(-beta, -alpha, pos, info);
+        take_move(pos);
+
+        if (score > alpha) {
+            if (score >= beta) {
+                if (legal == 1) {
+                    info->fhf++;
+                }
+                info->fh++;
+                return beta;
+            }
+            alpha = score;
+            best_move = list->moves[move_nr].move;
+        }
+    }
+
+    if (alpha != old_alpha) {
+        store_pv_move(pos, best_move);
+    }
+    return alpha;
 }
 
 static int alpha_beta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, int do_null) {
     ASSERT(check_board(pos));
 
     if (depth == 0) {
-        info->nodes++;
-        return evaluate_position(pos);
+        return quiescence(alpha, beta, pos, info);
+        //return evaluate_position(pos);
     }
 
     info->nodes++;
@@ -99,6 +156,16 @@ static int alpha_beta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO
     int old_alpha = alpha;
     int best_move = NOMOVE;
     int score = -INFINITE;
+    int pv_move = probe_pv_table(pos);
+
+    if (pv_move != NOMOVE) {
+        for (move_nr = 0; move_nr < list->count; move_nr++) {
+            if (list->moves[move_nr].move == pv_move) {
+                list->moves[move_nr].score = 2000000;
+                break;
+            }
+        }
+    }
 
     for (move_nr = 0; move_nr < list->count; move_nr++) {
 
@@ -117,10 +184,19 @@ static int alpha_beta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO
                     info->fhf++;
                 }
                 info->fh++;
+
+                if (!(list->moves[move_nr].move & MFLAGCAP)) {
+                    pos->search_killer[1][pos->ply] = pos->search_killer[0][pos->ply];
+                    pos->search_killer[0][pos->ply] = list->moves[move_nr].move;
+                }
+
                 return beta;
             }
             alpha = score;
             best_move = list->moves[move_nr].move;
+            if (!(list->moves[move_nr].move & MFLAGCAP)) {
+                pos->search_history[pos->pieces[FROMSQ(best_move)]][TOSQ(best_move)] += depth;
+            }
         }
     }
 

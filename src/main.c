@@ -46,7 +46,7 @@ int main() {
           } else if (input[0] == 't') {
                take_move(board);
           } else if (input[0] == 's') {
-               info->depth = 5;
+               info->depth = 6;
                search_position(board, info);
 
           } else {

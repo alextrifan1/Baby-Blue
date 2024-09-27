@@ -261,6 +261,7 @@ extern int piece_valid(const int pce);
 extern int sq_is_120(const int sq);
 
 // movgen.c
+extern void generate_all_captures(const S_BOARD *pos, S_MOVELIST *list);
 extern void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list);
 extern int move_exists(S_BOARD *pos, const int move);
 extern void init_MvvLva();

@@ -99,7 +99,14 @@ static void add_quiet_move(const S_BOARD *pos, int move, S_MOVELIST *list) {
     ASSERT(check_board(pos));
 
     list->moves[list->count].move = move;
-    list->moves[list->count].score = 0;
+
+    if (pos->search_killer[0][pos->ply] == move) {
+        list->moves[list->count].score = 900000;
+    } else if (pos->search_killer[1][pos->ply] == move) {
+        list->moves[list->count].score = 800000;
+    } else {
+        list->moves[list->count].score = pos->search_history[pos->pieces[FROMSQ(move)]][TOSQ(move)];
+    }
     list->count++;
 }
 
@@ -115,7 +122,7 @@ static void add_capture_move(const S_BOARD *pos, int move, S_MOVELIST *list) {
     ASSERT(check_board(pos));
 
     list->moves[list->count].move = move;
-    list->moves[list->count].score = MvvLvaScores[CAPTURED(move)][pos->pieces[FROMSQ(move)]];
+    list->moves[list->count].score = MvvLvaScores[CAPTURED(move)][pos->pieces[FROMSQ(move)]] + 1000000;
     list->count++;
 
 }
@@ -129,7 +136,7 @@ static void add_enpassante_move(const S_BOARD *pos, int move, S_MOVELIST *list) 
     ASSERT(sq_on_board(TOSQ(move)));
 
     list->moves[list->count].move = move;
-    list->moves[list->count].score = 105;
+    list->moves[list->count].score = 105 + + 1000000;
     list->count++;
 }
 
@@ -205,7 +212,6 @@ static void add_white_pawn_move(const S_BOARD *pos, const int from, const int to
 }
 
 void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list) {
-
     ASSERT(check_board(pos));
 
     list->count = 0;
@@ -389,5 +395,142 @@ void generate_all_moves(const S_BOARD *pos, S_MOVELIST *list) {
 
         piece = loop_nonsliding_pieces[piece_index++];
     }
+}
 
+void generate_all_captures(const S_BOARD *pos, S_MOVELIST *list) {
+
+    ASSERT(check_board(pos));
+
+    list->count = 0;
+
+    int piece = EMPTY;
+    int side = pos->side;
+    int sq = 0, temp_sq = 0, piece_number = 0;
+    int dir = 0;
+    int index = 0;
+    int piece_index = 0;
+
+    if (side == WHITE) {
+        // pawns
+        for (piece_number = 0; piece_number < pos->pieces_number[wP]; piece_number++) { // loop through all wP
+            sq = pos->p_list[wP][piece_number]; // get the square of the piece
+            ASSERT(sq_on_board(sq));
+
+            // capturing
+            if (!SQOFFBOARD(sq + 9) && piece_color[pos->pieces[sq+9]] == BLACK) {
+                add_white_pawn_capture_move(pos, sq, sq+9, pos->pieces[sq+9], list);
+            }
+            if (!SQOFFBOARD(sq + 11) && piece_color[pos->pieces[sq+11]] == BLACK) {
+                add_white_pawn_capture_move(pos, sq, sq+11, pos->pieces[sq+11], list);
+            }
+
+            // capturing with en passant
+            if (pos->en_passant != NO_SQ) {
+                if (sq + 9 == pos->en_passant) {
+                    add_enpassante_move(pos, MOVE(sq, sq+9, EMPTY, EMPTY, MFLAGEP), list);
+                }
+                if (sq + 11 == pos->en_passant) {
+                    add_enpassante_move(pos, MOVE(sq, sq+11, EMPTY, EMPTY, MFLAGEP), list);
+                }
+            }
+        }
+
+    } else { // side is BLACK
+        // pawns
+        for (piece_number = 0; piece_number < pos->pieces_number[bP]; piece_number++) {
+            // loop through all bP
+            sq = pos->p_list[bP][piece_number]; // get the square of the piece
+            ASSERT(sq_on_board(sq));
+
+            // capturing
+            if (!SQOFFBOARD(sq - 9) && piece_color[pos->pieces[sq - 9]] == WHITE) {
+                add_black_pawn_capture_move(pos, sq, sq - 9, pos->pieces[sq - 9], list);
+            }
+
+            if (!SQOFFBOARD(sq - 11) && piece_color[pos->pieces[sq - 11]] == WHITE) {
+                add_black_pawn_capture_move(pos, sq, sq - 11, pos->pieces[sq - 11], list);
+            }
+
+            // capturing with en passant
+            if (pos->en_passant != NO_SQ) {
+                if (sq - 9 == pos->en_passant) {
+                    add_enpassante_move(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MFLAGEP), list);
+                }
+                if (sq - 11 == pos->en_passant) {
+                    add_enpassante_move(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MFLAGEP), list);
+                }
+            }
+
+        }
+    }
+
+    /* loop for slide pieces */
+    piece_index = loop_sliding_index[side]; //ex: side = White = 0
+    piece = loop_sliding_pieces[piece_index++]; //post increment
+    while (piece != 0) {
+        ASSERT(piece_valid(piece));
+
+        for (piece_number = 0; piece_number < pos->pieces_number[piece]; piece_number++) {
+            sq = pos->p_list[piece][piece_number];
+            ASSERT(sq_on_board(sq));
+            //printf("piece:%c on %s\n", piece_char[piece], print_square(sq));
+
+            for (index = 0; index < numberof_directions[piece]; index++) {
+                dir = piece_direction[piece][index];
+                temp_sq = sq + dir; //this is a target square, need to change the name
+
+                while (!SQOFFBOARD(temp_sq)) {
+
+                    //BLACK ^ 1 == WHITE        WHITE ^ 1 == BLACK
+                    if (pos->pieces[temp_sq] != EMPTY) {
+                        if (piece_color[pos->pieces[temp_sq]] == (side ^ 1) ) {
+                            int m = MOVE(sq, temp_sq, pos->pieces[temp_sq], EMPTY, 0);
+                            if (FROMSQ(m) != TOSQ(m))
+                                add_capture_move(pos, MOVE(sq, temp_sq, pos->pieces[temp_sq], EMPTY, 0), list);
+                        }
+                        break;
+                    }
+                    temp_sq += dir;
+                }
+
+            }
+        }
+
+        piece = loop_sliding_pieces[piece_index++];
+    }
+
+    /* loop for non slide pieces */
+
+    piece_index = loop_nonsliding_index[side]; //ex: side = White = 0
+    piece = loop_nonsliding_pieces[piece_index++]; //post increment
+    while (piece != 0) {
+        ASSERT(piece_valid(piece));
+
+        for (piece_number = 0; piece_number < pos->pieces_number[piece]; piece_number++) {
+            sq = pos->p_list[piece][piece_number];
+            ASSERT(sq_on_board(sq));
+            //printf("piece:%c on %s\n", piece_char[piece], print_square(sq));
+
+            for (index = 0; index < numberof_directions[piece]; index++) {
+                dir = piece_direction[piece][index];
+                temp_sq = sq + dir; //this is a target square, need to change the name
+
+                if (SQOFFBOARD(temp_sq)) {
+                    continue;;
+                }
+
+                //BLACK ^ 1 == WHITE        WHITE ^ 1 == BLACK
+                if (pos->pieces[temp_sq] != EMPTY) {
+                    if (piece_color[pos->pieces[temp_sq]] == (side ^ 1) ) {
+                        int m = MOVE(sq, temp_sq, pos->pieces[temp_sq], EMPTY, 0);
+                        if (FROMSQ(m) != TOSQ(m))
+                            add_capture_move(pos, MOVE(sq, temp_sq, pos->pieces[temp_sq], EMPTY, 0), list);
+                    }
+                    continue;
+                }
+            }
+        }
+
+        piece = loop_nonsliding_pieces[piece_index++];
+    }
 }
