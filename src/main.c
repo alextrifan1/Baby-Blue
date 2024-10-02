@@ -47,6 +47,8 @@ int main() {
                take_move(board);
           } else if (input[0] == 's') {
                info->depth = 6;
+               info->start_time = get_time_ms();
+               info->stop_time = get_time_ms() + 200000;
                search_position(board, info);
 
           } else {

@@ -8,8 +8,10 @@
 
 #define MATE 29000
 
-static void checkup() {
+static void checkup(S_SEARCHINFO *info) {
     // check if time up or stop from gui
+    if (info->time_set == TRUE && get_time_ms() > info->stop_time)
+        info->stopped = TRUE;
 }
 
 static void pick_next_move(int move_nr, S_MOVELIST *list) {
@@ -29,7 +31,7 @@ static void pick_next_move(int move_nr, S_MOVELIST *list) {
     list->moves[best_nr] = temp;
 }
 
-//TODO: make this static and remove from defs.h (maybe)
+
 int is_repetition(const S_BOARD *pos) {
     int index;
 
@@ -72,6 +74,11 @@ static void clear_for_search(S_BOARD *pos, S_SEARCHINFO *info) {
 static int quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
     ASSERT(check_board(pos));
+
+    if ((info->nodes & 2047) == 0) {
+        checkup(info);
+    }
+
     info->nodes++;
 
     if (is_repetition(pos) || pos->fifty_moves >= 100) {
@@ -110,6 +117,9 @@ static int quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
         legal++;
         score = -quiescence(-beta, -alpha, pos, info);
         take_move(pos);
+        if (info->stopped == TRUE) {
+            return 0;
+        }
 
         if (score > alpha) {
             if (score >= beta) {
@@ -138,6 +148,9 @@ static int alpha_beta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO
         //return evaluate_position(pos);
     }
 
+    if ((info->nodes & 2047) == 0) {
+        checkup(info);
+    }
     info->nodes++;
 
     if (is_repetition(pos) || pos->fifty_moves >= 100) {
@@ -177,6 +190,9 @@ static int alpha_beta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO
         legal++;
         score = -alpha_beta(-beta, -alpha, depth-1, pos, info, TRUE);
         take_move(pos);
+        if (info->stopped == TRUE) {
+            return 0;
+        }
 
         if (score > alpha) {
             if (score >= beta) {
@@ -228,11 +244,16 @@ void search_position(S_BOARD *pos, S_SEARCHINFO *info) {
 
     for (current_depth = 1; current_depth <= info->depth; current_depth++) {
         best_score = alpha_beta(-INFINITE, INFINITE, current_depth, pos, info, TRUE);
+
+        if (info->stopped == TRUE) {
+            break;
+        }
+
         pv_moves = get_pv_line(current_depth, pos);
         best_move = pos->pv_array[0];
 
-        printf("Depth: %d, score: %d, move: %s, bodes: %ld ",
-                current_depth, best_score, print_move(best_move), info->nodes);
+        printf("info score cp %d depth %d nodes %ld time %d ",
+                best_score, current_depth, info->nodes, get_time_ms()-info->start_time);
 
         pv_moves = get_pv_line(current_depth, pos);
         printf("pv");
@@ -242,4 +263,5 @@ void search_position(S_BOARD *pos, S_SEARCHINFO *info) {
         printf("\n");
         printf("ordering: %.2f\n", (info->fhf/info->fh));
     }
+    printf("bestmove %s\n", print_move(best_move));
 }
